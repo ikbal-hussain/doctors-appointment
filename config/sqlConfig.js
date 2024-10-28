@@ -1,11 +1,11 @@
-// config/sqlConfig.js
+
 const { Sequelize } = require('sequelize');
 const dotenv = require('dotenv');
 dotenv.config();
 
 const sequelize = new Sequelize(process.env.SQL_DATABASE, process.env.SQL_USER, process.env.SQL_PASSWORD, {
     host: process.env.SQL_HOST,
-    dialect: 'mysql', // Ensure the dialect is set to 'mysql'
+    dialect: 'mysql', 
 });
 
 const testConnection = async () => {
@@ -17,4 +17,4 @@ const testConnection = async () => {
     }
 };
 
-module.exports = { sequelize, testConnection }; // Export the sequelize instance
+module.exports = { sequelize, testConnection }; 
