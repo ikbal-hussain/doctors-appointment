@@ -1,0 +1,6 @@
+[
+    { "name": "Dr. Smith", "specialization": "Cardiologist", "availability": true },
+    { "name": "Dr. Jane Doe", "specialization": "Dermatologist", "availability": false },
+    { "name": "Dr. Brown", "specialization": "Pediatrician", "availability": true }
+  ]
+  
