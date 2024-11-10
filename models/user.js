@@ -1,11 +1,18 @@
+const { Entity, PrimaryGeneratedColumn, Column } = require('typeorm');
 
-const { DataTypes } = require("sequelize");
-const { sequelize } = require("../config/sqlConfig"); 
+@Entity()
+class User {
+    @PrimaryGeneratedColumn()
+    id;
 
-const User = sequelize.define("User", {
-  username: { type: DataTypes.STRING, unique: true, allowNull: false },
-  password: { type: DataTypes.STRING, allowNull: false },
-  role: { type: DataTypes.STRING, defaultValue: "patient" },
-});
+    @Column({ type: 'varchar', unique: true, nullable: false })
+    username;
+
+    @Column({ type: 'varchar', nullable: false })
+    password;
+
+    @Column({ type: 'varchar', default: 'patient' })
+    role;
+}
 
 module.exports = User;

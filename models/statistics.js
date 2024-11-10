@@ -1,56 +1,55 @@
-const { sequelize, DataTypes } = require('sequelize');
+const { Entity, PrimaryGeneratedColumn, Column } = require('typeorm');
 const Appointment = require('./appointment');
+const { AppDataSource } = require('../config/sqlConfig');
 
-const Statistics = sequelize.define('Statistics', {
-    totalAppointments: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0,
-    },
-    mostActiveDoctor: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-    mostActivePatient: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-    averageAppointmentsPerDay: {
-        type: DataTypes.FLOAT,
-        defaultValue: 0.0,
-    },
-});
+@Entity()
+class Statistics {
+    @PrimaryGeneratedColumn()
+    id;
 
+    @Column({ type: 'int', default: 0 })
+    totalAppointments;
 
-Statistics.calculateStatistics = async () => {
-    const totalAppointments = await Appointment.count();
-    const mostActiveDoctor = await Appointment.findAll({
-        attributes: [
-            'doctorName',
-            [sequelize.fn('COUNT', sequelize.col('doctorName')), 'appointmentCount']
-        ],
-        group: ['doctorName'],
-        order: [[sequelize.fn('COUNT', sequelize.col('doctorName')), 'DESC']],
-        limit: 1,
-    });
+    @Column({ type: 'varchar', nullable: true })
+    mostActiveDoctor;
 
-    const mostActivePatient = await Appointment.findAll({
-        attributes: [
-            'patientName',
-            [sequelize.fn('COUNT', sequelize.col('patientName')), 'appointmentCount']
-        ],
-        group: ['patientName'],
-        order: [[sequelize.fn('COUNT', sequelize.col('patientName')), 'DESC']],
-        limit: 1,
-    });
+    @Column({ type: 'varchar', nullable: true })
+    mostActivePatient;
 
-    const averageAppointmentsPerDay = totalAppointments / 30; // Assuming a 30-day month
+    @Column({ type: 'float', default: 0.0 })
+    averageAppointmentsPerDay;
 
-    return {
-        totalAppointments,
-        mostActiveDoctor: mostActiveDoctor.length > 0 ? mostActiveDoctor[0].doctorName : null,
-        mostActivePatient: mostActivePatient.length > 0 ? mostActivePatient[0].patientName : null,
-        averageAppointmentsPerDay,
-    };
-};
+    static async calculateStatistics() {
+        const appointmentRepository = AppDataSource.getRepository(Appointment);
+        const totalAppointments = await appointmentRepository.count();
+
+        const mostActiveDoctor = await appointmentRepository
+            .createQueryBuilder("appointment")
+            .select("appointment.doctorName")
+            .addSelect("COUNT(appointment.doctorName)", "appointmentCount")
+            .groupBy("appointment.doctorName")
+            .orderBy("appointmentCount", "DESC")
+            .limit(1)
+            .getRawOne();
+
+        const mostActivePatient = await appointmentRepository
+            .createQueryBuilder("appointment")
+            .select("appointment.patientName")
+            .addSelect("COUNT(appointment.patientName)", "appointmentCount")
+            .groupBy("appointment.patientName")
+            .orderBy("appointmentCount", "DESC")
+            .limit(1)
+            .getRawOne();
+
+        const averageAppointmentsPerDay = totalAppointments / 30;
+
+        return {
+            totalAppointments,
+            mostActiveDoctor: mostActiveDoctor ? mostActiveDoctor.appointment_doctorName : null,
+            mostActivePatient: mostActivePatient ? mostActivePatient.appointment_patientName : null,
+            averageAppointmentsPerDay,
+        };
+    }
+}
 
 module.exports = Statistics;

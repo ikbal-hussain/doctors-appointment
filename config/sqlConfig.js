@@ -1,20 +1,16 @@
-
-const { Sequelize } = require('sequelize');
+const { DataSource } = require('typeorm');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const sequelize = new Sequelize(process.env.SQL_DATABASE, process.env.SQL_USER, process.env.SQL_PASSWORD, {
+const AppDataSource = new DataSource({
+    type: 'mysql',
     host: process.env.SQL_HOST,
-    dialect: 'mysql', 
+    port: parseInt(process.env.SQL_PORT, 10) || 3306,
+    username: process.env.SQL_USER,
+    password: process.env.SQL_PASSWORD,
+    database: process.env.SQL_DATABASE,
+    entities: [__dirname + '/models/*.js'], 
+    synchronize: true,
 });
 
-const testConnection = async () => {
-    try {
-        await sequelize.authenticate();
-        console.log('MySQL connected');
-    } catch (error) {
-        console.error('SQL connection error:', error);
-    }
-};
-
-module.exports = { sequelize, testConnection }; 
+module.exports = { AppDataSource };

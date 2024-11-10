@@ -13,7 +13,7 @@ describe('Appointment API', () => {
         expect(res.body.message).toBe('Appointment approved');
     });
 
-    // more tests...
+  
 });
 
 
