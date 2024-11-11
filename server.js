@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoConfig = require('./config/mongoConfig');
-const { AppDataSource, testConnection } = require('./config/typeormConfig');
+const { AppDataSource, testConnection } = require('./config/sqlConfig');
 const authRoutes = require('./routes/authRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const patientRoutes = require('./routes/patientRoutes');
